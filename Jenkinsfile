@@ -34,14 +34,17 @@ pipeline {
                 }
             }
         }
-        stage('Deploy') {
-            steps {
-                script {
-                    sh """
-                    docker run -d -p 3000:3000 --name simple-web-app ${DOCKER_HUB_REPO}:latest
-                    """
-                }
-            }
-        }
-    }
+     stage('Deploy') {
+    steps {
+        script {
+            sh '''
+                docker pull mohamedessam1911/simple-web-app:latest
+                docker stop web-app || true
+                docker rm web-app || true
+                docker run -d -p 3000:3000 --name web-app mohamedessam1911/simple-web-app:latest
+            '''
+         }
+     }
+   }
+ }
 }
