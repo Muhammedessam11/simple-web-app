@@ -3,25 +3,33 @@ pipeline {
 
     environment {
         DOCKER_HUB_REPO = 'mohamedessam1911/simple-web-app'
-        DOCKERHUB_CREDENTIALS=credentials('Dockerhub')
+        DOCKER_CREDENTIALS_ID = 'Dockerhub'
     }
 
     stages {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build(DOCKER_HUB_REPO)
+                    dockerImage = docker.build(DOCKER_HUB_REPO)
                 }
             }
         }
         stage('Docker Login') {
             steps {
-                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
+                        // Perform the Docker login
+                    }
+                }
             }
         }
         stage('Push Docker Image') {
             steps {
-                docker.image(DOCKER_HUB_REPO).push('latest')
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
+                        dockerImage.push('latest')
+                    }
+                }
             }
         }
         stage('Deploy') {
